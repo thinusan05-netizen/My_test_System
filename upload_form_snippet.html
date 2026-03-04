@@ -1,0 +1,37 @@
+<!-- CSV Upload Form -->
+<div id="upload-form" class="form-card" style="display: none;">
+    <h2>📁 Upload Accident CSV File</h2>
+    <div class="alert alert-info">
+        <strong>CSV Format Required:</strong><br>
+        <code>latitude,longitude,weather_condition,road_condition,traffic_volume,risk_level</code>
+        <br><br>
+        <strong>Example:</strong><br>
+        <code>6.927079,79.861244 Rainy,Wet,High,High</code>
+        <br><br>
+        <strong>Valid Values:</strong>
+        <ul style="margin: 10px 0 0 20px;">
+            <li>weather_condition: Clear, Rainy, Cloudy</li>
+            <li>road_condition: Dry, Wet</li>
+            <li>traffic_volume: Low, Medium, High</li>
+            <li>risk_level: Low, Medium, High</li>
+        </ul>
+    </div>
+    <form id="csv-upload-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Select CSV File *</label>
+            <input type="file" id="csv-file" name="csv_file" accept=".csv" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Upload & Import
+            </button>
+            <button type="button" onclick="hideUploadForm()" class="btn btn-secondary">Cancel</button>
+        </div>
+    </form>
+    <div id="upload-progress" style="display: none; margin-top: 20px;">
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <p id="upload-status">Uploading...</p>
+    </div>
+</div>

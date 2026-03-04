@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Road Safety System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Admin Specific Overrides */
+        #admin-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+    <div id="admin-panel">
+        <h2><i class="fas fa-shield-alt"></i> Zone Manager</h2>
+        <p>Click on the map to add a risk zone.</p>
+        <div id="zone-form" class="hidden">
+            <h3 id="form-title">Add New Zone</h3>
+            <div class="form-group">
+                <label>Lat/Lng</label>
+                <input type="text" id="latlng" readonly>
+            </div>
+            <div class="form-group">
+                <label>Zone Name</label>
+                <input type="text" id="zone-name" placeholder="e.g. Danger Curve">
+            </div>
+            <div class="form-group">
+                <label>Risk Level</label>
+                <select id="zone-risk">
+                    <option value="High">High (Red)</option>
+                    <option value="Medium">Medium (Orange)</option>
+                    <option value="Low">Low (Green)</option>
+                </select>
+            </div>
+            <button id="btn-save-zone" class="btn primary" style="width: 100%">Save Zone</button>
+            <button id="btn-cancel-zone" class="btn secondary" style="width: 100%; margin-top: 5px;">Cancel</button>
+        </div>
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <a href="index.html" class="btn secondary"
+                style="display:block; text-align:center; text-decoration:none;">Back to App</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        const API_BASE = 'http://localhost/final_project/backend/api';
+        const DEFAULT_COORDS = [6.9271, 79.8612];
+        let map, selectedLatLng;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            fetchZones();
+        });
+
+        function initMap() {
+            map = L.map('map').setView(DEFAULT_COORDS, 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            // Click Listener
+            map.on('click', (e) => {
+                selectedLatLng = e.latlng;
+                showForm(e.latlng);
+            });
+        }
+
+        function showForm(latlng) {
+            document.getElementById('zone-form').classList.remove('hidden');
+            document.getElementById('latlng').value = `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+            document.getElementById('zone-name').focus();
+        }
+
+        document.getElementById('btn-cancel-zone').addEventListener('click', () => {
+            document.getElementById('zone-form').classList.add('hidden');
+        });
+
+        document.getElementById('btn-save-zone').addEventListener('click', async () => {
+            const name = document.getElementById('zone-name').value;
+            const risk = document.getElementById('zone-risk').value;
+
+            if (!name) return alert("Please enter a name");
+
+            const payload = {
+                name: name,
+                lat: selectedLatLng.lat,
+                lng: selectedLatLng.lng,
+                risk: risk,
+                radius: 300
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/add_zone.php`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    alert("Zone added!");
+                    fetchZones(); // Refresh map
+                    document.getElementById('zone-form').classList.add('hidden');
+                    document.getElementById('zone-name').value = '';
+                } else {
+                    alert("Error: " + json.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Failed to connect to server");
+            }
+        });
+
+        async function fetchZones() {
+            try {
+                const res = await fetch(`${API_BASE}/get_zones.php`);
+                const json = await res.json();
+                const zones = json.data || [];
+
+                // Clear existing circles (optional, simplistic approach here just adds more)
+                zones.forEach(zone => {
+                    L.circle([zone.lat, zone.lng], {
+                        color: zone.color || 'red',
+                        fillColor: zone.color || 'red',
+                        fillOpacity: 0.3,
+                        radius: parseInt(zone.radius) || 300
+                    }).addTo(map).bindPopup(`<b>${zone.name}</b><br>${zone.risk}`);
+                });
+            } catch (e) { console.error(e); }
+        }
+    </script>
+</body>
+
+</html>

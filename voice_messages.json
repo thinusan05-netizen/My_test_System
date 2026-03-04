@@ -1,0 +1,23 @@
+{
+    "high_risk": [
+        "Warning! You are entering a high accident risk zone. Please slow down immediately.",
+        "Danger ahead. This area has a high accident rate. Drive carefully.",
+        "High-risk road segment detected. Reduce speed and stay alert.",
+        "Caution! Accident-prone area ahead. Maintain safe distance.",
+        "Severe risk detected. Please avoid sudden braking or overtaking."
+    ],
+    "medium_risk": [
+        "Attention. Moderate accident risk area ahead. Please drive carefully.",
+        "Medium-risk zone detected. Stay alert and maintain safe speed.",
+        "Caution advised. Road conditions may require extra attention.",
+        "Drive safely. This area has a moderate accident history.",
+        "Be careful. Keep a safe distance from other vehicles."
+    ],
+    "low_risk": [
+        "You are currently in a low-risk zone. Drive safely.",
+        "Road conditions are relatively safe. Continue driving responsibly.",
+        "Low accident risk detected. Maintain standard safety measures.",
+        "Safe route segment ahead. Follow traffic rules.",
+        "Area risk level is low. Have a safe journey."
+    ]
+}
